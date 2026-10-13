@@ -302,43 +302,9 @@
             
             <div class="flex flex-col md:flex-row gap-8 items-start">
                 <div class="w-full md:w-2/3 bg-gray-50 rounded-3xl p-8 border border-gray-200 shadow-sm flex justify-center overflow-x-auto">
-                    <!-- Mermaid Graph -->
-                    <div class="mermaid text-center cursor-pointer" id="mermaid-graph">
-                        graph TD
-                        %% Defining classes for styling
-                        classDef default fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px,font-family:Cairo,font-size:14px,font-weight:600,rx:20,ry:20,color:#334155;
-                        classDef python fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
-                        classDef math fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
-                        classDef ml fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
-                        classDef dl fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
-                        classDef nlp fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
-                        classDef target fill:#e0f2fe,stroke:#38bdf8,stroke-width:2px,color:#0c4a6e;
-                        classDef active fill:#bae6fd,stroke:#0284c7,stroke-width:3px;
-
-                        %% Nodes
-                        A["بايثون (Python)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>الأسس البرمجية</span>"]:::python
-                        B["الرياضيات وتحليل البيانات<br><span style='font-size:11px;font-weight:normal;color:#64748b'>الجبر والبيانات</span>"]:::math
-                        C["تعلم الآلة (ML)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>النماذج التنبؤية</span>"]:::ml
-                        D["التعلم العميق (DL)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>الشبكات العصبية</span>"]:::dl
-                        E["معالجة اللغات (NLP/LLMs)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>المحولات والنصوص</span>"]:::nlp
-                        F["الوكلاء الأذكياء (Agents)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>الأنظمة المستقلة</span>"]:::target
-
-                        %% Connections with styling
-                        linkStyle default stroke:#60a5fa,stroke-width:2px,fill:none;
-                        A --> B
-                        B --> C
-                        C --> D
-                        D --> E
-                        E --> F
-                        A --> F
-                        
-                        %% Add interaction classes
-                        click A "javascript:showDetails('python')" "اضغط للتفاصيل"
-                        click B "javascript:showDetails('math')" "اضغط للتفاصيل"
-                        click C "javascript:showDetails('ml')" "اضغط للتفاصيل"
-                        click D "javascript:showDetails('dl')" "اضغط للتفاصيل"
-                        click E "javascript:showDetails('nlp')" "اضغط للتفاصيل"
-                        click F "javascript:showDetails('agents')" "اضغط للتفاصيل"
+                    <!-- Mermaid Graph Container -->
+                    <div id="mermaid-graph" class="text-center cursor-pointer">
+                        <!-- Graph will be rendered here dynamically -->
                     </div>
                 </div>
 
@@ -360,4 +326,42 @@
                         <div class="w-full h-px bg-gray-100 mb-6"></div>
                         
                         <p id="detail-desc" class="text-gray-700 leading-relaxed mb-6 flex-grow"></p>
-                       
+                        
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-500 mb-3">المتطلبات المسبقة لهذه المهارة:</h4>
+                            <div id="detail-prereqs" class="flex flex-wrap gap-2 justify-end">
+                                <!-- Prereqs will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Resources Section -->
+    <section id="videos" class="py-20 bg-darkBg text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">المصادر المرئية والدورات</h2>
+                <p class="text-gray-400">مجموعة من أفضل الفيديوهات المنتقاة لتغطية هذا المسار.</p>
+                <div class="w-24 h-1 bg-secondary mx-auto rounded mt-4"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Arabic Resources 1 -->
+                <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-xl flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fa-brands fa-youtube text-red-500 text-2xl"></i>
+                        <h3 class="text-xl font-bold text-white">أساسيات تعلم الآلة</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4 flex-grow">م/ هشام عاصم - شرح مفصل لخوارزميات الـ Machine Learning مع التطبيق العملي.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-600 relative group cursor-pointer">
+                            <iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/5D10yHq589g" title="Machine Learning Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                        <a href="https://www.youtube.com/playlist?list=PL3n-zK_266lWp46pG6L7yUfQp6A8B17v3" target="_blank" class="block text-center w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                            السلسلة الكاملة للـ ML <i class="fa-solid fa-external-link-alt text-xs ml-1"></i>
+                        </a>
+             

@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خريطة طريق الذكاء الاصطناعي | وزارة الموارد المائية والري</title>
+    
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#0369a1', // Light blue, relates to water/irrigation
+                        secondary: '#0ea5e9',
+                        darkBg: '#0f172a',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Timeline Styles */
+        .timeline-container {
+            position: relative;
+        }
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 50%;
+            width: 4px;
+            background-color: #cbd5e1;
+            transform: translateX(50%);
+            border-radius: 2px;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 3rem;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            right: 50%;
+            top: 0;
+            transform: translateX(50%);
+            width: 24px;
+            height: 24px;
+            background-color: #0369a1;
+            border: 4px solid #fff;
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 0 4px rgba(3, 105, 161, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .timeline-container::before {
+                right: 24px;
+                transform: none;
+            }
+            .timeline-dot {
+                right: 24px;
+                transform: translateX(50%);
+            }
+            .timeline-content {
+                width: 100% !important;
+                padding-right: 60px !important;
+                padding-left: 0 !important;
+                text-align: right !important;
+            }
+            .timeline-item.even .timeline-content {
+                float: none;
+            }
+        }
+
+        .hover-scale {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-scale:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #0369a1, #0ea5e9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .interactive-node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .interactive-node:hover {
+            transform: scale(1.05);
+            filter: brightness(0.9);
+        }
+        .node-details-card {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+        }
+        .node-details-card.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header / Hero Section -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white text-xl shadow-lg">
+                    <i class="fa-solid fa-water"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">وزارة الموارد المائية والري</h1>
+                    <p class="text-sm text-gray-500">مبادرة تطوير المهندسين - مسار الذكاء الاصطناعي</p>
+                </div>
+            </div>
+            <div class="hidden md:block">
+                <a href="#roadmap" class="text-primary hover:text-secondary font-semibold mx-3">خريطة الطريق</a>
+                <a href="#flowchart" class="text-primary hover:text-secondary font-semibold mx-3">الاعتماديات</a>
+                <a href="#videos" class="text-primary hover:text-secondary font-semibold mx-3">المصادر المرئية</a>
+                <a href="#about" class="text-primary hover:text-secondary font-semibold mx-3">عن المبادرة</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="relative bg-darkBg text-white py-20 overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+            <svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                <defs>
+                    <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M0 40L40 0H20L0 20M40 40V20L20 40" stroke="currentColor" stroke-width="1" fill="none" opacity="0.3"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid-pattern)"/>
+            </svg>
+        </div>
+        <div class="max-w-4xl mx-auto px-4 relative z-10 text-center">
+            <h2 class="text-4xl md:text-5xl font-extrabold mb-6">من الصفر وحتى بناء <span class="text-secondary">AI Agents</span></h2>
+            <p class="text-lg text-gray-300 leading-relaxed mb-8">
+                صُممت خريطة الطريق هذه خصيصاً لمهندسي وزارة الموارد المائية والري. تبدأ معك من الأساسيات البرمجية والرياضية، وصولاً إلى بناء وكلاء ذكاء اصطناعي قادرين على اتخاذ القرارات وحل المشكلات الهندسية المعقدة باستخدام أدوات متقدمة مثل LangChain.
+            </p>
+            <a href="#roadmap" class="bg-secondary hover:bg-primary text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 shadow-lg inline-block">
+                ابدأ رحلتك الآن <i class="fa-solid fa-arrow-down mr-2"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Roadmap Timeline Section -->
+    <section id="roadmap" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">خطوات التعلم (Roadmap)</h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded"></div>
+            </div>
+
+            <div class="timeline-container">
+                <!-- Step 1 -->
+                <div class="timeline-item flex md:justify-between w-full">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content w-1/2 pr-12 md:pr-0 md:pl-12 text-left md:text-right">
+                        <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover-scale">
+                            <div class="flex items-center gap-3 mb-3 md:justify-start">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">المدة: شهر واحد</span>
+                                <i class="fa-brands fa-python text-2xl text-blue-900"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">1. أساسيات البرمجة (Python)</h3>
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                لغة بايثون هي حجر الأساس. يجب التركيز على المتغيرات، هياكل البيانات، الدوال، والأهم: البرمجة كائنية التوجه (OOP) لبناء أدوات الوكلاء لاحقاً.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="timeline-item even flex justify-end w-full">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content w-1/2 pl-12 md:pl-0 md:pr-12 text-left md:text-right">
+                        <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover-scale">
+                            <div class="flex items-center gap-3 mb-3 md:justify-start">
+                                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full">المدة: 3 أسابيع</span>
+                                <i class="fa-solid fa-calculator text-2xl text-purple-700"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">2. الرياضيات وتحليل البيانات</h3>
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                تعلم مبادئ الجبر الخطي، الاحتمالات والإحصاء لفهم الخوارزميات. وإتقان مكتبات التعامل مع البيانات: Pandas للبيانات المجدولة و NumPy للعمليات الرياضية.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="timeline-item flex md:justify-between w-full">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content w-1/2 pr-12 md:pr-0 md:pl-12 text-left md:text-right">
+                        <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover-scale">
+                            <div class="flex items-center gap-3 mb-3 md:justify-start">
+                                <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full">المدة: شهر واحد</span>
+                                <i class="fa-solid fa-brain text-2xl text-green-700"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">3. تعلم الآلة (Machine Learning)</h3>
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                استخدام مكتبة Scikit-Learn لتطبيق خوارزميات الانحدار (Regression) للتنبؤات، والتصنيف (Classification)، وفهم طرق تقييم النماذج بشكل دقيق.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="timeline-item even flex justify-end w-full">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content w-1/2 pl-12 md:pl-0 md:pr-12 text-left md:text-right">
+                        <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover-scale">
+                            <div class="flex items-center gap-3 mb-3 md:justify-start">
+                                <span class="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full">المدة: شهر واحد</span>
+                                <i class="fa-solid fa-network-wired text-2xl text-red-700"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">4. التعلم العميق (Deep Learning)</h3>
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                التعامل مع البيانات غير المهيكلة (الصور والنصوص). دراسة الشبكات العصبية الاصطناعية، واختيار إطار عمل PyTorch لانتشاره الواسع في الأبحاث الحديثة.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="timeline-item flex md:justify-between w-full opacity-0 translate-y-8 transition-all duration-700 ease-out" data-animate>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content w-1/2 pr-12 md:pr-0 md:pl-12 text-left md:text-right">
+                        <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover-scale">
+                            <div class="flex items-center gap-3 mb-3 md:justify-start">
+                                <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full">المدة: 3 أسابيع</span>
+                                <i class="fa-solid fa-language text-2xl text-yellow-700"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">5. النماذج اللغوية (LLMs & NLP)</h3>
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                فهم تحويل النصوص لأرقام (Embeddings)، معمارية المحولات (Transformers)، التعامل مع منصة Hugging Face، واستخدام قواعد البيانات المتجهة (Vector DBs).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="timeline-item even flex justify-end w-full opacity-0 translate-y-8 transition-all duration-700 ease-out delay-200" data-animate>
+                    <div class="timeline-dot" style="background-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);"></div>
+                    <div class="timeline-content w-1/2 pl-12 md:pl-0 md:pr-12 text-left md:text-right">
+                        <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-green-400 hover-scale relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 to-blue-500"></div>
+                            <div class="flex items-center gap-3 mb-3 md:justify-start">
+                                <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full">الهدف النهائي</span>
+                                <i class="fa-solid fa-robot text-2xl text-green-600"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">6. تصميم وكلاء الذكاء الاصطناعي (AI Agents)</h3>
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                ربط النماذج اللغوية بأدوات خارجية (كالآلة الحاسبة أو قواعد بيانات الوزارة). استخدام <span class="font-bold">LangChain</span> و <span class="font-bold">LangGraph</span> لبناء أنظمة تتخذ قرارات وتنفذ مهام معقدة آلياً.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Flowchart Section -->
+    <section id="flowchart" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">مسار تعلم الذكاء الاصطناعي (AI Learning Path)</h2>
+                <p class="text-gray-600">خريطة الاعتماديات التقنية — انقر على أي مرحلة لاكتشاف المتطلبات المسبقة والتفاصيل</p>
+                <div class="w-24 h-1 bg-primary mx-auto rounded mt-4"></div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row gap-8 items-start">
+                <div class="w-full md:w-2/3 bg-gray-50 rounded-3xl p-8 border border-gray-200 shadow-sm flex justify-center overflow-x-auto">
+                    <!-- Mermaid Graph Container -->
+                    <div id="mermaid-graph" class="text-center cursor-pointer">
+                        <!-- Graph will be rendered here dynamically -->
+                    </div>
+                </div>
+
+                <!-- Details Panel -->
+                <div class="w-full md:w-1/3 relative">
+                    <!-- Default message -->
+                    <div id="default-panel" class="bg-white rounded-3xl p-8 border border-gray-200 shadow-sm h-full flex flex-col items-center justify-center text-center text-gray-500">
+                        <i class="fa-solid fa-hand-pointer text-4xl mb-4 text-gray-300"></i>
+                        <p>انقر على أي عقدة في المخطط لعرض التفاصيل والمتطلبات.</p>
+                    </div>
+
+                    <!-- Dynamic Details Card -->
+                    <div id="details-panel" class="node-details-card absolute top-0 left-0 w-full bg-white rounded-3xl p-8 border border-gray-200 shadow-lg h-full hidden flex-col">
+                        <div class="flex justify-between items-start mb-6">
+                            <h3 id="detail-title" class="text-2xl font-bold text-gray-900 leading-tight"></h3>
+                            <span id="detail-badge" class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap mr-4"></span>
+                        </div>
+                        
+                        <div class="w-full h-px bg-gray-100 mb-6"></div>
+                        
+                        <p id="detail-desc" class="text-gray-700 leading-relaxed mb-6 flex-grow"></p>
+                        
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-500 mb-3">المتطلبات المسبقة لهذه المهارة:</h4>
+                            <div id="detail-prereqs" class="flex flex-wrap gap-2 justify-end">
+                                <!-- Prereqs will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Resources Section -->
+    <section id="videos" class="py-20 bg-darkBg text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">المصادر المرئية والدورات</h2>
+                <p class="text-gray-400">مجموعة من أفضل الفيديوهات المنتقاة لتغطية هذا المسار.</p>
+                <div class="w-24 h-1 bg-secondary mx-auto rounded mt-4"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Arabic Resources 1 -->
+                <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-xl flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fa-brands fa-youtube text-red-500 text-2xl"></i>
+                        <h3 class="text-xl font-bold text-white">أساسيات تعلم الآلة</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4 flex-grow">م/ هشام عاصم - شرح مفصل لخوارزميات الـ Machine Learning مع التطبيق العملي.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-600 relative group cursor-pointer">
+                            <iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/5D10yHq589g" title="Machine Learning Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                        <a href="https://www.youtube.com/playlist?list=PL3n-zK_266lWp46pG6L7yUfQp6A8B17v3" target="_blank" class="block text-center w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                            السلسلة الكاملة للـ ML <i class="fa-solid fa-external-link-alt text-xs ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Arabic Resources 2 -->
+                <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-xl flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fa-brands fa-youtube text-red-500 text-2xl"></i>
+                        <h3 class="text-xl font-bold text-white">التعلم العميق (Deep Learning)</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4 flex-grow">تكملة لمسار م/ هشام عاصم في الشبكات العصبية والتعامل مع الصور والنصوص.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-600 relative group cursor-pointer">
+                            <iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/aircAruvnKk" title="Deep Learning Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                        <a href="https://www.youtube.com/c/HeshamAsem" target="_blank" class="block text-center w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                            قناة هشام عاصم <i class="fa-solid fa-external-link-alt text-xs ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- NLP Arabic -->
+                <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-xl flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fa-brands fa-youtube text-red-500 text-2xl"></i>
+                        <h3 class="text-xl font-bold text-white">معالجة اللغات الطبيعية NLP</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4 flex-grow">مقدمة عن النماذج اللغوية وكيفية عملها بالعربية من قناة Corex.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-600 relative group cursor-pointer">
+                            <iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/5ctbvkAMQO4" title="NLP Arabic" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- English Resources (Agents 1) -->
+                <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-xl flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fa-brands fa-youtube text-red-500 text-2xl"></i>
+                        <h3 class="text-xl font-bold text-white">LangChain Crash Course</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4 flex-grow">من أفضل الدورات المجانية بالإنجليزية لفهم إطار عمل LangChain من FreeCodeCamp.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-600 relative group cursor-pointer">
+                            <iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/aywZrzNaKjs" title="LangChain Crash Course" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- English Resources (Agents 2) -->
+                <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-xl flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fa-brands fa-youtube text-red-500 text-2xl"></i>
+                        <h3 class="text-xl font-bold text-white">Building AI Agents</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4 flex-grow">كيفية بناء وكلاء أذكياء باستخدام أدوات متعددة (Tool Use) و LangGraph.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-600 relative group cursor-pointer">
+                            <iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/2xxziIWmaSA" title="AI Agents Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+                
+                 <!-- RAG Crash Course -->
+                <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-xl flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fa-brands fa-youtube text-red-500 text-2xl"></i>
+                        <h3 class="text-xl font-bold text-white">دورة الـ RAG</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4 flex-grow">فهم Retrieval-Augmented Generation لربط النماذج ببياناتك الخاصة.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-600 relative group cursor-pointer">
+                            <iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/T-D1OfcDW1M" title="RAG Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-white border-b border-gray-200">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+             <div class="w-20 h-20 bg-primary text-white rounded-full flex items-center justify-center text-3xl mx-auto mb-6 shadow-lg">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">عن المبادرة</h2>
+            <p class="text-gray-600 leading-relaxed mb-6">
+                تم إعداد وتصميم خريطة الطريق هذه خصيصاً لتطوير القدرات التقنية لمهندسي وزارة الموارد المائية والري بجمهورية مصر العربية. تهدف المبادرة لتمكين الكوادر الهندسية من الاستفادة من أحدث تقنيات الذكاء الاصطناعي في تحليل البيانات المائية، نمذجة تدفقات المياه، والمساعدة في اتخاذ القرارات الاستراتيجية.
+            </p>
+            <div class="inline-block bg-gray-50 border border-gray-200 rounded-xl p-4 mt-4">
+                <p class="font-semibold text-gray-800 text-lg">
+                    إعداد وتصميم: <span class="text-primary">المهندس / إبراهيم يوسف</span>
+                </p>
+                <p class="text-sm text-gray-500 mt-1">مؤسس شركة روبوتك (RoboTech)</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-10">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2">
+                 <i class="fa-solid fa-water text-primary text-xl"></i>
+                 <span class="font-bold text-white">وزارة الموارد المائية والري</span>
+            </div>
+            <div class="text-sm text-center md:text-right">
+                <p>جميع الحقوق محفوظة &copy; <span id="current-year"></span> | المهندس إبراهيم يوسف - شركة روبوتك</p>
+            </div>
+            <div class="flex gap-4">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fa-brands fa-github text-xl"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fa-brands fa-linkedin text-xl"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <!-- Using a more stable version of Mermaid for simple HTML pages -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@9.4.3/dist/mermaid.min.js"></script>
+    
+    <script>
+        // Data for interactive flowchart
+        const nodeData = {
+            'python': {
+                title: 'بايثون (Python)',
+                badge: 'الأساس',
+                desc: 'لغة البرمجة الأساسية في مجال الذكاء الاصطناعي. يجب إتقان المتغيرات، هياكل البيانات، والدوال، والأهم البرمجة كائنية التوجه (OOP) لبناء أدوات الوكلاء لاحقاً.',
+                prereqs: []
+            },
+            'math': {
+                title: 'الرياضيات وتحليل البيانات',
+                badge: 'مرحلة تحضيرية',
+                desc: 'مبادئ الجبر الخطي، الاحتمالات والإحصاء لفهم الخوارزميات. وإتقان مكتبات التعامل مع البيانات: Pandas للبيانات المجدولة و NumPy للعمليات الرياضية.',
+                prereqs: ['python']
+            },
+            'ml': {
+                title: 'تعلم الآلة (ML)',
+                badge: 'الجوهر',
+                desc: 'استخدام مكتبة Scikit-Learn لتطبيق خوارزميات الانحدار (Regression) للتنبؤات، والتصنيف (Classification)، وفهم طرق تقييم النماذج بشكل دقيق.',
+                prereqs: ['math']
+            },
+            'dl': {
+                title: 'التعلم العميق (DL)',
+                badge: 'متقدم',
+                desc: 'التعامل مع البيانات غير المهيكلة كالصور. دراسة الشبكات العصبية الاصطناعية، واختيار إطار عمل PyTorch لانتشاره الواسع.',
+                prereqs: ['ml']
+            },
+            'nlp': {
+                title: 'معالجة اللغات (NLP/LLMs)',
+                badge: 'تخصص',
+                desc: 'فهم تحويل النصوص لأرقام (Embeddings)، معمارية المحولات (Transformers)، التعامل مع منصة Hugging Face، واستخدام قواعد البيانات المتجهة.',
+                prereqs: ['dl']
+            },
+            'agents': {
+                title: 'الوكلاء الأذكياء (Agents)',
+                badge: 'القمة التطبيقية',
+                desc: 'بناء وكلاء اتخاذ القرار، استرجاع المعرفة الممتد (RAG)، استخدام الأدوات (Tool Use)، وأطر العمل مثل LangChain و LangGraph.',
+                prereqs: ['nlp', 'dl', 'ml', 'python', 'math'] // Showing all in reverse order for visual effect
+            }
+        };
+
+        const nodeNames = {
+            'python': 'بايثون (Python)',
+            'math': 'الرياضيات وتحليل البيانات',
+            'ml': 'تعلم الآلة (ML)',
+            'dl': 'التعلم العميق (DL)',
+            'nlp': 'معالجة اللغات (NLP/LLMs)',
+            'agents': 'الوكلاء الأذكياء'
+        };
+
+        // Function exposed to global scope for Mermaid click events
+        window.showDetails = function(nodeId) {
+            const data = nodeData[nodeId];
+            if (!data) return;
+
+            // Hide default, show details
+            document.getElementById('default-panel').classList.add('hidden');
+            const detailsPanel = document.getElementById('details-panel');
+            detailsPanel.classList.remove('hidden');
+            
+            // Add a slight delay for transition effect
+            setTimeout(() => {
+                detailsPanel.classList.add('active');
+            }, 10);
+
+            // Populate data
+            document.getElementById('detail-title').innerText = data.title;
+            document.getElementById('detail-badge').innerText = data.badge;
+            document.getElementById('detail-desc').innerText = data.desc;
+
+            // Build prerequisites
+            const prereqsContainer = document.getElementById('detail-prereqs');
+            prereqsContainer.innerHTML = '';
+            
+            if (data.prereqs.length === 0) {
+                prereqsContainer.innerHTML = '<span class="bg-gray-100 text-gray-500 text-xs px-3 py-1 rounded-full">لا يوجد متطلبات مسبقة (نقطة البداية)</span>';
+            } else {
+                data.prereqs.forEach(req => {
+                    const span = document.createElement('span');
+                    span.className = 'bg-gray-100 text-gray-700 text-xs px-3 py-2 rounded-full border border-gray-200';
+                    span.innerText = nodeNames[req];
+                    prereqsContainer.appendChild(span);
+                });
+            }
+
+            // Optional: You could write logic here to manipulate the SVG DOM to highlight the clicked node
+            // Since Mermaid renders an SVG, we can select parts of it if needed.
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Mermaid with custom config
+            mermaid.initialize({ 
+                startOnLoad: false, // Change to false, we will render manually
+                theme: 'base',
+                themeVariables: {
+                    fontFamily: 'Cairo',
+                    primaryColor: '#f8fafc',
+                    primaryTextColor: '#334155',
+                    primaryBorderColor: '#cbd5e1',
+                    lineColor: '#60a5fa',
+                    secondaryColor: '#f0f9ff',
+                    tertiaryColor: '#fff'
+                },
+                flowchart: {
+                    curve: 'basis',
+                    htmlLabels: true
+                },
+                securityLevel: 'loose' // Allows Javascript click events in flowchart
+            });
+
+            // The Mermaid graph definition as a string
+            const graphDefinition = `
+                graph TD
+                %% Defining classes for styling
+                classDef default fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px,font-family:Cairo,font-size:14px,font-weight:600,rx:20,ry:20,color:#334155;
+                classDef python fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
+                classDef math fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
+                classDef ml fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
+                classDef dl fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
+                classDef nlp fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
+                classDef target fill:#e0f2fe,stroke:#38bdf8,stroke-width:2px,color:#0c4a6e;
+                classDef active fill:#bae6fd,stroke:#0284c7,stroke-width:3px;
+
+                %% Nodes
+                A["بايثون (Python)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>الأسس البرمجية</span>"]:::python
+                B["الرياضيات وتحليل البيانات<br><span style='font-size:11px;font-weight:normal;color:#64748b'>الجبر والبيانات</span>"]:::math
+                C["تعلم الآلة (ML)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>النماذج التنبؤية</span>"]:::ml
+                D["التعلم العميق (DL)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>الشبكات العصبية</span>"]:::dl
+                E["معالجة اللغات (NLP/LLMs)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>المحولات والنصوص</span>"]:::nlp
+                F["الوكلاء الأذكياء (Agents)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>الأنظمة المستقلة</span>"]:::target
+
+                %% Connections with styling
+                linkStyle default stroke:#60a5fa,stroke-width:2px,fill:none;
+                A --> B
+                B --> C
+                C --> D
+                D --> E
+                E --> F
+                A --> F
+                
+                %% Add interaction classes
+                click A "javascript:showDetails('python')" "اضغط للتفاصيل"
+                click B "javascript:showDetails('math')" "اضغط للتفاصيل"
+                click C "javascript:showDetails('ml')" "اضغط للتفاصيل"
+                click D "javascript:showDetails('dl')" "اضغط للتفاصيل"
+                click E "javascript:showDetails('nlp')" "اضغط للتفاصيل"
+                click F "javascript:showDetails('agents')" "اضغط للتفاصيل"
+            `;
+
+            // Render the graph dynamically
+            const renderGraph = async () => {
+                const element = document.querySelector('#mermaid-graph');
+                try {
+                    const { svg } = await mermaid.render('mermaid-svg', graphDefinition);
+                    element.innerHTML = svg;
+                } catch (error) {
+                    console.error("Mermaid rendering failed:", error);
+                    element.innerHTML = '<p class="text-red-500">حدث خطأ أثناء تحميل المخطط. يرجى تحديث الصفحة.</p>';
+                }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Mermaid
+            mermaid.initialize({ 
+                startOnLoad: true, // Let mermaid handle it automatically
+                theme: 'base',
+                themeVariables: {
+                    fontFamily: 'Cairo',
+                    primaryColor: '#f8fafc',
+                    primaryTextColor: '#334155',
+                    primaryBorderColor: '#cbd5e1',
+                    lineColor: '#60a5fa',
+                    secondaryColor: '#f0f9ff',
+                    tertiaryColor: '#fff'
+                },
+                flowchart: {
+                    curve: 'basis',
+                    htmlLabels: true
+                },
+                securityLevel: 'loose' // Allows Javascript click events in flowchart
+            });
+
+            // We inject the graph definition into the div for Mermaid to parse
+            const element = document.querySelector('#mermaid-graph');
+            element.classList.add('mermaid');
+            element.textContent = `
+                graph TD
+                %% Defining classes for styling
+                classDef default fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px,font-family:Cairo,font-size:14px,font-weight:600,rx:20,ry:20,color:#334155;
+                classDef python fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
+                classDef math fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
+                classDef ml fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
+                classDef dl fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
+                classDef nlp fill:#f0f9ff,stroke:#bae6fd,stroke-width:2px;
+                classDef target fill:#e0f2fe,stroke:#38bdf8,stroke-width:2px,color:#0c4a6e;
+                
+                %% Nodes
+                A["بايثون (Python)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>الأسس البرمجية</span>"]:::python
+                B["الرياضيات وتحليل البيانات<br><span style='font-size:11px;font-weight:normal;color:#64748b'>الجبر والبيانات</span>"]:::math
+                C["تعلم الآلة (ML)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>النماذج التنبؤية</span>"]:::ml
+                D["التعلم العميق (DL)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>الشبكات العصبية</span>"]:::dl
+                E["معالجة اللغات (NLP/LLMs)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>المحولات والنصوص</span>"]:::nlp
+                F["الوكلاء الأذكياء (Agents)<br><span style='font-size:11px;font-weight:normal;color:#64748b'>الأنظمة المستقلة</span>"]:::target
+
+                %% Connections with styling
+                linkStyle default stroke:#60a5fa,stroke-width:2px,fill:none;
+                A --> B
+                B --> C
+                C --> D
+                D --> E
+                E --> F
+                A --> F
+                
+                %% Add interaction classes
+                click A call showDetails("python") "اضغط للتفاصيل"
+                click B call showDetails("math") "اضغط للتفاصيل"
+                click C call showDetails("ml") "اضغط للتفاصيل"
+                click D call showDetails("dl") "اضغط للتفاصيل"
+                click E call showDetails("nlp") "اضغط للتفاصيل"
+                click F call showDetails("agents") "اضغط للتفاصيل"
+            `;
+            
+            // Re-render specifically for this element to ensure it catches dynamically added textContent
+            mermaid.init(undefined, element);
+
+
+            // Smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if(targetId === '#') return;
+                    
+                    const target = document.querySelector(targetId);
+                    if(target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Set current year
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+
+            // Simple intersection observer for scroll animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.remove('opacity-0', 'translate-y-8');
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        // Stop observing once animated
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            document.querySelectorAll('[data-animate]').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
